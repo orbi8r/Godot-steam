@@ -39,7 +39,7 @@ loop = true
 [node name="MenuButtons" type="GridContainer" parent="."]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.2
+anchor_left = 0.17
 anchor_top = 0.5
 anchor_right = 0.2
 anchor_bottom = 0.5
@@ -69,8 +69,45 @@ text = "Settings
 "
 flat = true
 
+[node name="LobbyList" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.35
+anchor_top = 0.2
+anchor_right = 0.87
+anchor_bottom = 0.8
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LobbyContainer" type="ScrollContainer" parent="LobbyList"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -0.175964
+offset_bottom = -42.2
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Lobbies" type="VBoxContainer" parent="LobbyList/LobbyContainer"]
+layout_mode = 2
+
+[node name="Refresh" type="Button" parent="LobbyList"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -41.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 30
+text = "Refresh"
+
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
 spawn_path = NodePath("..")
 
 [connection signal="pressed" from="MenuButtons/Host" to="." method="_on_host_pressed"]
+[connection signal="pressed" from="MenuButtons/Browse" to="." method="_on_browse_pressed"]
 [connection signal="pressed" from="MenuButtons/Settings" to="." method="_on_settings_pressed"]
+[connection signal="pressed" from="LobbyList/Refresh" to="." method="_on_refresh_pressed"]
