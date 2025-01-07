@@ -1,6 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://dwtx716weydp5"]
+[gd_scene load_steps=8 format=3 uid="uid://dwtx716weydp5"]
 
-[ext_resource type="PackedScene" uid="uid://dwygujjgi7gcj" path="res://scenes/game/character_body_3d.tscn" id="1_h17sj"]
+[ext_resource type="Script" path="res://scripts/game/multiplayer_spawner.gd" id="1_qv07t"]
+[ext_resource type="PackedScene" uid="uid://dwygujjgi7gcj" path="res://scenes/game/character_body_3d.tscn" id="2_eoe1q"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_n4fo7"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -29,9 +30,6 @@ environment = SubResource("Environment_2dw3r")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.760565, 0.295819, -0.577956, -0.324631, 0.597647, 0.733098, 0.562278, 0.745191, -0.358518, 0, 15.983, 0)
 
-[node name="CharacterBody3D" parent="." instance=ExtResource("1_h17sj")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-
 [node name="StaticBody3D" type="StaticBody3D" parent="."]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
@@ -39,3 +37,8 @@ mesh = SubResource("PlaneMesh_n0crw")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
 shape = SubResource("ConvexPolygonShape3D_5yydh")
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+spawn_path = NodePath(".")
+script = ExtResource("1_qv07t")
+character_body = ExtResource("2_eoe1q")

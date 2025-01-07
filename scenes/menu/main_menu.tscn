@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://duomlpyc2uhl7"]
+[gd_scene load_steps=4 format=3 uid="uid://duomlpyc2uhl7"]
 
 [ext_resource type="Script" path="res://scripts/menu/main_menu.gd" id="1_bxy4k"]
 [ext_resource type="VideoStream" path="res://assets/menu/background/BackgroundVideo.ogv" id="2_g3qtt"]
+[ext_resource type="Script" path="res://scripts/menu/steam.gd" id="2_m8eop"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -11,6 +12,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_bxy4k")
+
+[node name="Steam" type="Node" parent="."]
+script = ExtResource("2_m8eop")
 
 [node name="Background" type="Panel" parent="."]
 layout_mode = 1
@@ -65,4 +69,8 @@ text = "Settings
 "
 flat = true
 
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+spawn_path = NodePath("..")
+
+[connection signal="pressed" from="MenuButtons/Host" to="." method="_on_host_pressed"]
 [connection signal="pressed" from="MenuButtons/Settings" to="." method="_on_settings_pressed"]
