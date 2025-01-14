@@ -1,37 +1,44 @@
 extends CharacterBody3D
 
-
 var SPEED = 5.0
 var JUMP_VELOCITY = 4.5
-var SENSITIVITY = 0.0006
-var SPRINT_MULTIPLIER = 2
+var SENSITIVITY = 0.0002
+var SPRINT_MULTIPLIER = 1.5
 
+@export var input: PlayerInput
 @onready var head: Node3D = $Head
 @onready var camera_3d: Camera3D = $Head/Camera3D
+@onready var rollback_synchronizer: RollbackSynchronizer = $RollbackSynchronizer
+
+var peer_id = 0
 
 
 func _ready() -> void:
 	camera_3d.current = is_multiplayer_authority()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	await get_tree().process_frame
+	
+	# Set owner
+	peer_id = get_multiplayer_authority()
+	set_multiplayer_authority(1)
+	input.set_multiplayer_authority(peer_id)
+	rollback_synchronizer.process_settings()
 
 
-func _input(event: InputEvent) -> void:
+func _apply_movement_from_input(delta):
 	if !is_multiplayer_authority():
 		return
 	
-	if event is InputEventMouseMotion:
-		head.rotate_y(-event.relative.x * SENSITIVITY)
-		camera_3d.rotate_x(-event.relative.y * SENSITIVITY)
-		camera_3d.rotation.x = clamp(camera_3d.rotation.x, deg_to_rad(-40), deg_to_rad(80))
-
-
-func _physics_process(delta: float) -> void:
-	if !is_multiplayer_authority():
-		return
+	_force_update_is_on_floor()
 	
 	# Add the gravity.
 	if not is_on_floor():
 		velocity += get_gravity() * delta
+	
+	# Mouse Movement
+	head.rotate_y(input.input_mouse.x * SENSITIVITY * NetworkTime.physics_factor)
+	camera_3d.rotate_x(input.input_mouse.y * SENSITIVITY * NetworkTime.physics_factor)
+	camera_3d.rotation.x = clamp(camera_3d.rotation.x, deg_to_rad(-60), deg_to_rad(80))
 
 	# Handle jump.
 	if Input.is_action_just_pressed("Jump") and is_on_floor():
@@ -46,7 +53,7 @@ func _physics_process(delta: float) -> void:
 		JUMP_VELOCITY /= SPRINT_MULTIPLIER
 	
 	# Get the input direction and handle the movement/deceleration.
-	var input_dir := Input.get_vector("Left", "Right", "Forward", "Backward")
+	var input_dir = input.input_movement
 	var direction := (head.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	if direction:
 		velocity.x = direction.x * SPEED
@@ -54,5 +61,22 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.x = 0.0
 		velocity.z = 0.0
-
+	
+	# Converting Properties to acknowledge Network time
+	velocity *= NetworkTime.physics_factor
+	
 	move_and_slide()
+	
+	# Converting Properties back
+	velocity /= NetworkTime.physics_factor
+
+
+func _force_update_is_on_floor():
+	var old_velocity = velocity
+	velocity = Vector3.ZERO
+	move_and_slide()
+	velocity = old_velocity
+
+
+func _rollback_tick(delta, tick, is_fresh):
+	_apply_movement_from_input(delta)
